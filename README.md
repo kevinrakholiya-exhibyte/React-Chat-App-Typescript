@@ -48,9 +48,7 @@ src/
 │   ├── Chat.tsx
 │   ├── Conversation.tsx
 |   ├── ConversationUser.tsx
-|   ├── EditUserModel.tsx 
 │   ├── Home.tsx
-|   ├── LoadingSkeleton.tsx
 │   ├── MessageInput.tsx
 |   ├── Messages.tsx
 |
