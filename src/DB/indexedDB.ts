@@ -71,6 +71,57 @@ export const getMessagesFromDB = async (): Promise<Message[]> => {
     }
 }
 
+// Update Message 
+export const updateMessageInDB = async (
+    id: number,
+    newText: string
+): Promise<boolean> => {
+    try {
+        const db = await openDB()
+        const transaction = db.transaction(MESSAGE_STORE, "readwrite")
+        const store = transaction.objectStore(MESSAGE_STORE)
+        return new Promise((resolve, reject) => {
+            const request = store.get(id)
+            request.onsuccess = () => {
+                const message = request.result as Message | undefined
+                if (!message) {
+                    reject("Message not found")
+                    return
+                }
+                message.text = newText
+                message.edited = true
+                store.put(message)
+            }
+            transaction.oncomplete = () => resolve(true)
+            transaction.onerror = () => reject(false)
+        })
+    } catch (error) {
+        console.error("updateMessageInDB error", error)
+        return false
+    }
+}
+
+//Delete Message
+export const deleteMessageFromDB = async (
+  messageId: number
+): Promise<boolean> => {
+  try {
+    const db = await openDB()
+    const transaction = db.transaction(MESSAGE_STORE, "readwrite")
+    const store = transaction.objectStore(MESSAGE_STORE)
+
+    return new Promise((resolve, reject) => {
+      const request = store.delete(messageId)
+      request.onsuccess = () => resolve(true)
+      request.onerror = () => reject(false)
+    })
+  } catch (error) {
+    console.error("deleteMessageFromDB error", error)
+    return false
+  }
+}
+
+
 // Add Users To IndexedDB
 export const addUsersToDB = async (user: User): Promise<void> => {
     const db = await openDB()
@@ -128,28 +179,28 @@ export const updateUserProfile = async (
 }
 
 export const getMessagesLastId = async (
-  lastId: number
+    lastId: number
 ): Promise<Message[]> => {
-  try {
-    const db = await openDB()
-    const store = db
-      .transaction(MESSAGE_STORE, "readonly")
-      .objectStore(MESSAGE_STORE)
+    try {
+        const db = await openDB()
+        const store = db
+            .transaction(MESSAGE_STORE, "readonly")
+            .objectStore(MESSAGE_STORE)
 
-    return new Promise((resolve, reject) => {
-      const request = store.getAll()
+        return new Promise((resolve, reject) => {
+            const request = store.getAll()
 
-      request.onsuccess = () => {
-        const newMessages = (request.result as Message[]).filter(
-          (msg) => (msg.id ?? 0) > lastId
-        )
-        resolve(newMessages)
-      }
+            request.onsuccess = () => {
+                const newMessages = (request.result as Message[]).filter(
+                    (msg) => (msg.id ?? 0) > lastId
+                )
+                resolve(newMessages)
+            }
 
-      request.onerror = () => reject(request.error)
-    })
-  } catch (error) {
-    console.error("getMessagesLastId error", error)
-    return []
-  }
+            request.onerror = () => reject(request.error)
+        })
+    } catch (error) {
+        console.error("getMessagesLastId error", error)
+        return []
+    }
 }

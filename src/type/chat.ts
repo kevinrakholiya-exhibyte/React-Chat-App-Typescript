@@ -5,7 +5,7 @@ export interface Message {
     text: string
     time: Date
     status?: "sent" | "received"
-
+    edited?:boolean
 }
 
 export interface User {

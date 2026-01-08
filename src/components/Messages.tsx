@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useChat } from '../contextAPI/ChatContext'
 import type { Message, User } from '../type/chat'
-import { Check } from 'lucide-react'
+import { Check, Pencil, Trash2 } from 'lucide-react'
 
 interface MessagesProps {
     searchText: string
@@ -13,8 +13,8 @@ const Messages = ({ searchText }: MessagesProps) => {
         activeChat,
         users,
         isTyping,
-        // editMessage,
-        // deleteMessage,
+        editMessage,
+        deleteMessage,
     } = useChat()
     const bottomRef = useRef<HTMLDivElement | null>(null)
     const tabUserId = sessionStorage.getItem("tabUserId")
@@ -35,18 +35,18 @@ const Messages = ({ searchText }: MessagesProps) => {
         (user: User) => Number(user.id) === Number(activeChat)
     )
 
-    // const handleEdit = (msg: Message) => {
-    //     const newText = prompt("Edit Message:", msg.text)
-    //     if (newText && newText !== msg.text) {
-    //         editMessage(msg.id, newText)
-    //     }
-    // }
+    const handleEdit = (msg: Message) => {
+        const newText = prompt("Edit Message:", msg.text)
+        if (newText && newText !== msg.text) {
+            editMessage(msg.id, newText)
+        }
+    }
 
-    // const handleDelete = (id: number) => {
-    //     if (window.confirm("Are You Sure Want to Delete Message")) {
-    //         deleteMessage(id)
-    //     }
-    // }
+    const handleDelete = (id: number) => {
+        if (window.confirm("Are You Sure Want to Delete Message")) {
+            deleteMessage(id)
+        }
+    }
 
     const filteredMessages: Message[] = message.filter((msg: Message) => {
         if (msg.chatId !== activeChat) return false
@@ -108,23 +108,21 @@ const Messages = ({ searchText }: MessagesProps) => {
                                     )}
                                 </div>
 
-                                {/* {isSender && (
+                                {isSender && (
                                     <div className="absolute -top-2 -right-2 hidden group-hover:flex gap-1 bg-white dark:bg-gray-800 shadow rounded-full p-1">
                                         <button
                                             onClick={() => handleEdit(msg)}
-                                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                                        >
+                                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded">
                                             <Pencil size={12} />
                                         </button>
 
                                         <button
                                             onClick={() => handleDelete(msg.id)}
-                                            className="p-1 hover:bg-red-100 text-red-500 rounded"
-                                        >
+                                            className="p-1 hover:bg-red-100 text-red-500 rounded">
                                             <Trash2 size={12} />
                                         </button>
                                     </div>
-                                )} */}
+                                )}
                             </div>
                         </div>
                     )

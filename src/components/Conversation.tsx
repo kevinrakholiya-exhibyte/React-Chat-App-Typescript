@@ -41,6 +41,7 @@ const Conversation = () => {
                     <ConversationUser
                         key={user.id}
                         name={user.name}
+                        email={user.email}
                         userId={user.id}
                         avatar={user.avatar}
                         message={lastMessage?.text ?? "No messages yet"}

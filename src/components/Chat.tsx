@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import Conversation from './Conversation'
 import Messages from './Messages'
 import MessageInput from './MessageInput'
+import LoadingSkeleton from './LoadingSkeleton'
 
 const Chat = () => {
     const [loading, setLoading] = useState<boolean>(true)
@@ -60,7 +61,7 @@ const Chat = () => {
             </div>
             {loading ? (
                 <div className="flex h-screen w-full items-center justify-center">
-                    {/* <LoadingSkeleton /> */} Loading....
+                    <LoadingSkeleton />
                 </div>
             ) : (
                 <>
