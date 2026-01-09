@@ -2,6 +2,9 @@ import React, { useState, type ChangeEvent, type FormEvent } from 'react'
 import type { User } from '../type/chat'
 import { useChat } from '../contextAPI/ChatContext'
 import { X } from 'lucide-react'
+import { useAppDispatch } from '../redux/store/hooks'
+import { updateUser } from '../redux/slices/chatSlice'
+import { updateUserProfile } from '../DB/indexedDB'
 
 interface EditUserModelProps {
     user: User
@@ -14,7 +17,8 @@ interface EditUserForm {
 }
 const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
 
-    const { updateUser } = useChat()
+    const dispatch = useAppDispatch()
+
 
     const [form, setForm] = useState<EditUserForm>({
         name: user.name,
@@ -28,12 +32,15 @@ const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-
-        await updateUser(user.id, {
+        const updatedData = {
             name: form.name.trim(),
-            avatar: form.avatar.trim(),
-        })
-
+            avatar: form.avatar.trim()
+        }
+        dispatch(updateUser({
+            id: user.id,
+            data: updatedData
+        }))
+        await updateUserProfile(user.id, updatedData)
         onClose()
     }
 
@@ -47,7 +54,7 @@ const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
                     </h3>
                     <X
                         className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={onClose}/>
+                        onClick={onClose} />
                 </div>
 
                 {/* Form */}
@@ -60,7 +67,7 @@ const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
                             name="name"
                             value={form.name}
                             onChange={handleChange}
-                            className="w-full p-2 rounded-lg border dark:bg-gray-700 dark:text-white"/>
+                            className="w-full p-2 rounded-lg border dark:bg-gray-700 dark:text-white" />
                     </div>
 
                     <div>
@@ -71,7 +78,7 @@ const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
                             name="avatar"
                             value={form.avatar}
                             onChange={handleChange}
-                            className="w-full p-2 rounded-lg border dark:bg-gray-700 dark:text-white"/>
+                            className="w-full p-2 rounded-lg border dark:bg-gray-700 dark:text-white" />
                     </div>
 
                     {/* Avatar Preview */}

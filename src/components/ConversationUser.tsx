@@ -1,7 +1,8 @@
 import { Pencil, Pin } from 'lucide-react'
 import React, { useState } from 'react'
 import EditUserModel from './EditUserModel'
-import { useChat } from '../contextAPI/ChatContext'
+import { useAppDispatch } from '../redux/store/hooks'
+import { togglePinChat } from '../redux/slices/chatSlice'
 
 interface ConversationUserProps {
     name: string
@@ -17,15 +18,14 @@ interface ConversationUserProps {
 
 const ConversationUser = ({ name, userId, avatar, email, message, time, active, onClick, isPinned }: ConversationUserProps) => {
     const [openEdit, setOpenEdit] = useState<boolean>(false)
-    const { togglePinChat } = useChat()
+    const dispatch = useAppDispatch()
+
     const formatTime = (timestamp?: number): string => {
         if (!timestamp) return ""
 
         const date = new Date(timestamp)
         const now = new Date()
-
         const isToday = date.toDateString() === now.toDateString()
-
         if (isToday) {
             return date.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -74,7 +74,7 @@ const ConversationUser = ({ name, userId, avatar, email, message, time, active, 
                     title={isPinned ? "Unpin chat" : "Pin chat"}
                     onClick={(e) => {
                         e.stopPropagation()
-                        togglePinChat(userId)
+                        dispatch(togglePinChat(userId))
                     }}
                     className={`p-2 rounded-full transition-all duration-300 ease-in-out
             ${isPinned
@@ -92,8 +92,7 @@ const ConversationUser = ({ name, userId, avatar, email, message, time, active, 
                         e.stopPropagation()
                         setOpenEdit(true)
                     }}
-                    className="p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-                >
+                    className="p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
                     <Pencil size={16} />
                 </button>
             </div>

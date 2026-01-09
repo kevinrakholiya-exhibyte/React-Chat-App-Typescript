@@ -1,14 +1,39 @@
-import React, { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
+import React, { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
 import { useChat } from '../contextAPI/ChatContext'
+import { useAppDispatch, useAppselector } from '../redux/store/hooks'
+import { addMessage, setActiveChat, setCurrentUserId } from '../redux/slices/chatSlice'
+import { addMessageToDB, getMessagesFromDB } from '../DB/indexedDB'
+import type { Message } from '../type/chat'
 
 const MessageInput = () => {
-    const [text, setText] = useState<string>("")
-    const { addMessage, setIsTyping, activeChat } = useChat()
-    const isChatActive = Boolean(activeChat)
 
+    const dispatch = useAppDispatch()
+    const activeChat = useAppselector(state => state.chat.activeChat)
+    const currentUserId = useAppselector(state => state.chat.currentUserId)
+
+    const [text, setText] = useState<string>("")
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    const { setIsTyping } = useChat()
+    const isChatActive = Boolean(activeChat)
     const isDisabled = !isChatActive || !text.trim()
+
+    useEffect(() => {
+        let id = sessionStorage.getItem("tabUserId")
+        if (!id) {
+            id = "user_" + Math.random().toString(36).slice(2)
+            sessionStorage.setItem("tabUserId", id)
+        }
+        dispatch(setCurrentUserId(id))
+    }, [dispatch])
+
+    useEffect(() => {
+        const savedChat = sessionStorage.getItem("activeChatId")
+        if (savedChat) {
+            dispatch(setActiveChat(Number(savedChat)))
+        }
+    }, [dispatch])
+
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!isChatActive) return
@@ -26,10 +51,19 @@ const MessageInput = () => {
         }, 900)
     }
 
-    const sendMessage = () => {
-        if (isDisabled) return
+    const sendMessage = async () => {
+        if (isDisabled || !activeChat || !currentUserId) return
 
-        addMessage(text)
+        const newMessage: Message = {
+            id: Date.now(),
+            chatId: activeChat,
+            sender: currentUserId,
+            text,
+            time: new Date(),
+            status: "sent",
+        }
+        dispatch(addMessage(newMessage))
+        await addMessageToDB(newMessage)
         setText("")
 
         if (typingTimeoutRef.current) {
@@ -63,7 +97,7 @@ const MessageInput = () => {
                 className={`px-4 rounded-lg transition text-white
           ${isDisabled
                         ? "bg-gray-400 cursor-not-allowed dark:bg-gray-600"
-                        : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600" }`}>
+                        : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600"}`}>
                 Send
             </button>
         </div>

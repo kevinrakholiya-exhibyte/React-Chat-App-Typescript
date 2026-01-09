@@ -1,11 +1,25 @@
-import React, { useState, type ChangeEvent } from 'react'
-import { useChat } from '../contextAPI/ChatContext'
+import React, { useEffect, useState, type ChangeEvent } from 'react'
 import ConversationUser from './ConversationUser'
 import { SearchIcon } from 'lucide-react'
+import { useAppDispatch, useAppselector } from '../redux/store/hooks'
+import { setActiveChat, setUsers } from '../redux/slices/chatSlice'
+import { getUsersFromDB } from '../DB/indexedDB'
 
 const Conversation = () => {
-    const { users, message, activeChat, setActiveChat } = useChat()
+
+    const dispatch = useAppDispatch()
+    const users = useAppselector(state => state.chat.users)
+    const messages = useAppselector(state => state.chat.messages)
+    const activeChat = useAppselector(state => state.chat.activeChat)
     const [search, setSearch] = useState<string>("")
+
+    useEffect(() => {
+        const loadUsers = async () => {
+            const usersFromDB = await getUsersFromDB()
+            dispatch(setUsers(usersFromDB))
+        }
+        loadUsers()
+    }, [dispatch])
 
     const filteredUsers = [...users]
         .filter((user) =>
@@ -33,7 +47,7 @@ const Conversation = () => {
 
             {filteredUsers.map((user) => {
                 // get last message of this user
-                const lastMessage = message
+                const lastMessage = messages
                     .filter((m) => m.chatId === user.id)
                     .slice(-1)[0]
 
@@ -47,7 +61,7 @@ const Conversation = () => {
                         message={lastMessage?.text ?? "No messages yet"}
                         time={lastMessage?.time?.toString() ?? ""}
                         active={activeChat === user.id}
-                        onClick={() => setActiveChat(user.id)}
+                        onClick={() => dispatch(setActiveChat(user.id))}
                         isPinned={user.isPinned}
                     />
                 )
