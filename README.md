@@ -48,13 +48,16 @@ src/
 │   ├── Chat.tsx
 │   ├── Conversation.tsx
 |   ├── ConversationUser.tsx
+|   ├── EditUserModel.jsx
 │   ├── Home.tsx
 │   ├── MessageInput.tsx
 |   ├── Messages.tsx
+|   ├── Settings.tsx
 |
 ├── contextAPI/
-│   └── ChatContext.ts
-│  
+|   ├── ChatContext.tsx
+|   ├── ThemeContext.tsx
+|
 ├── DB/
 │   └── indexedDB.ts
 │

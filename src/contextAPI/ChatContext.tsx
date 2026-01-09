@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import type { Message, User } from "../type/chat"
-import { addMessageToDB, addUsersToDB, getMessagesFromDB, getMessagesLastId, getUsersFromDB, updateUserProfile } from "../DB/indexedDB"
+import { addMessageToDB, addUsersToDB, deleteMessageFromDB, getMessagesFromDB, getMessagesLastId, getUsersFromDB, updateMessageInDB, updateUserProfile } from "../DB/indexedDB"
 
 interface ChatContextType {
     users: User[]
@@ -16,10 +16,10 @@ interface ChatContextType {
     addUser: (user: User) => Promise<void>
     updateUser: (id: number, data: Partial<User>) => Promise<void>
 
-    // editMessage: (id: number, newText: string) => Promise<void>
-    // deleteMessage: (id: number) => Promise<void>
+    editMessage: (id: number, newText: string) => Promise<void>
+    deleteMessage: (id: number) => Promise<void>
 
-    // togglePinChat: (userId: number) => Promise<void>
+    togglePinChat: (userId: number) => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -120,6 +120,29 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         lastMessagesId.current = savedMessage.id
     };
 
+    const editMessage = async (id: number, newText: string): Promise<void> => {
+        try {
+            setMessage((prev) =>
+                prev.map((msg) =>
+                    msg.id === id ? { ...msg, text: newText, edited: true } : msg
+                )
+            );
+            const success = await updateMessageInDB(id, newText);
+            if (!success) throw new Error("Edit failed");
+        } catch (error) {
+            console.error("Failed to edit message:", error);
+        }
+    }
+
+    const deleteMessage = async (id: number): Promise<void> => {
+        try {
+            await deleteMessageFromDB(id)
+            setMessage((prev) => prev.filter((msg) => msg.id !== id))
+        } catch (error) {
+            console.error("Failed to delete message:", error)
+        }
+    }
+
     const addUser = async (user: User): Promise<void> => {
         try {
             const newUser: User = { ...user, isPinned: false }
@@ -146,8 +169,26 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         )
     }
 
+    const togglePinChat = async (userId: number): Promise<void> => {
+        try {
+            const user = users.find((u) => u.id === userId)
+            if (!user) return
+
+            const updatedPin = !user.isPinned
+            await updateUserProfile(userId, { isPinned: updatedPin })
+
+            setUsers((prev) =>
+                prev.map((u) =>
+                    u.id === userId ? { ...u, isPinned: updatedPin } : u
+                )
+            )
+        } catch (error) {
+            console.error("Failed to pin chat:", error)
+        }
+    }
+
     return (
-        <ChatContext.Provider value={{ users, setUsers, message, activeChat, setActiveChat, addMessage, addUser, isTyping, setIsTyping, updateUser }}>
+        <ChatContext.Provider value={{ users, setUsers, message, activeChat, setActiveChat, addMessage, addUser, isTyping, setIsTyping, updateUser, editMessage, deleteMessage,togglePinChat }}>
             {children}
         </ChatContext.Provider>
     )

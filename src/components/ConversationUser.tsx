@@ -1,10 +1,13 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Pin } from 'lucide-react'
 import React, { useState } from 'react'
+import EditUserModel from './EditUserModel'
+import { useChat } from '../contextAPI/ChatContext'
 
 interface ConversationUserProps {
     name: string
     userId: number
     avatar?: string
+    email: string
     message: string
     time: number | string
     active: boolean
@@ -12,10 +15,9 @@ interface ConversationUserProps {
     isPinned?: boolean
 }
 
-const ConversationUser = ({ name, userId, avatar, message, time, active, onClick, isPinned }: ConversationUserProps) => {
+const ConversationUser = ({ name, userId, avatar, email, message, time, active, onClick, isPinned }: ConversationUserProps) => {
     const [openEdit, setOpenEdit] = useState<boolean>(false)
-
-
+    const { togglePinChat } = useChat()
     const formatTime = (timestamp?: number): string => {
         if (!timestamp) return ""
 
@@ -47,7 +49,7 @@ const ConversationUser = ({ name, userId, avatar, message, time, active, onClick
                     "https://cdn.pixabay.com/photo/2017/01/31/21/23/avatar-2027366_960_720.png"
                 }
                 alt={name}
-                className="w-10 h-10 rounded-full object-cover"/>
+                className="w-10 h-10 rounded-full object-cover" />
 
             {/* Content */}
             <div className="flex-1 min-w-0">
@@ -68,7 +70,7 @@ const ConversationUser = ({ name, userId, avatar, message, time, active, onClick
 
             <div className="flex items-center gap-2">
                 {/* Pin */}
-                {/* <button
+                <button
                     title={isPinned ? "Unpin chat" : "Pin chat"}
                     onClick={(e) => {
                         e.stopPropagation()
@@ -79,9 +81,9 @@ const ConversationUser = ({ name, userId, avatar, message, time, active, onClick
                             ? "bg-yellow-100 text-yellow-600 scale-110"
                             : "text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"}`}>
                     <Pin
-                        size={16}
-                        className={`transition-transform duration-300 ease-in-out cursor-pointer ${isPinned ? "rotate-45" : "rotate-0"}`}/>
-                </button> */}
+                        size={14}
+                        className={`transition-transform duration-300 ease-in-out cursor-pointer ${isPinned ? "rotate-45" : "rotate-0"}`} />
+                </button>
 
                 {/* Edit */}
                 <button
@@ -96,12 +98,12 @@ const ConversationUser = ({ name, userId, avatar, message, time, active, onClick
                 </button>
             </div>
 
-            {/* {openEdit && (
+            {openEdit && (
                 <EditUserModel
-                    user={{ id: userId, name, avatar }}
+                    user={{ id: userId, name, email, avatar }}
                     onClose={() => setOpenEdit(false)}
                 />
-            )} */}
+            )}
         </div>
     )
 }
