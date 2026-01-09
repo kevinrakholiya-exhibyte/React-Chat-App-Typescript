@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import {MessageCircle,Search,Settings,Users,HomeIcon} from "lucide-react"
-import { useChat } from '../contextAPI/ChatContext'
+import { MessageCircle, Search, Settings, Users, HomeIcon } from "lucide-react"
 import { Link } from 'react-router-dom'
 import Conversation from './Conversation'
 import Messages from './Messages'
 import MessageInput from './MessageInput'
 import LoadingSkeleton from './LoadingSkeleton'
+import { useAppDispatch, useAppselector } from '../redux/store/hooks'
 
 const Chat = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [searchText, setSearchText] = useState<string>("")
-
-    const { activeChat } = useChat()
-
+    const activeChat = useAppselector(state => state.chat.activeChat)
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false)
@@ -76,7 +74,7 @@ const Chat = () => {
                         </p>
                         {/* Conversation List */}
                         <div className="flex-1 overflow-y-auto px-2 space-y-1">
-                            <Conversation  />
+                            <Conversation />
                         </div>
                     </div>
 
@@ -94,7 +92,7 @@ const Chat = () => {
                                             e: React.ChangeEvent<HTMLInputElement>
                                         ) => setSearchText(e.target.value)}
                                         placeholder="Search messages"
-                                        className="flex-1 bg-transparent text-sm text-gray-800 dark:text-white outline-none"/>
+                                        className="flex-1 bg-transparent text-sm text-gray-800 dark:text-white outline-none" />
                                     {searchText && (
                                         <button
                                             onClick={() => setSearchText("")}
