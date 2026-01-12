@@ -2,22 +2,23 @@ import React, { useEffect, useRef } from 'react'
 import { useChat } from '../contextAPI/ChatContext'
 import type { Message, User } from '../type/chat'
 import { Check, Pencil, Trash2 } from 'lucide-react'
+import { useAppDispatch, useAppselector } from '../redux/store/hooks'
+import { deleteMessage, editMessage, setMessages } from '../redux/slices/chatSlice'
+import { deleteMessageFromDB, getMessagesFromDB, updateMessageInDB } from '../DB/indexedDB'
 
 interface MessagesProps {
     searchText: string
 }
 
 const Messages = ({ searchText }: MessagesProps) => {
-    const {
-        message,
-        activeChat,
-        users,
-        isTyping,
-        editMessage,
-        deleteMessage,
-    } = useChat()
     const bottomRef = useRef<HTMLDivElement | null>(null)
-    const tabUserId = sessionStorage.getItem("tabUserId")
+    // const tabUserId = sessionStorage.getItem("tabUserId")
+    const currentUserId = useAppselector(state => state.chat.currentUserId)
+    const dispatch = useAppDispatch()
+    const activeChat = useAppselector(state => state.chat.activeChat)
+    const message = useAppselector(state => state.chat.messages)
+    const users = useAppselector(state => state.chat.users)
+    const isTyping = useAppselector(state => state.chat.isTyping)
 
     // Auto scroll to bottom on new message
     useEffect(() => {
@@ -31,20 +32,30 @@ const Messages = ({ searchText }: MessagesProps) => {
         })
     }
 
+    useEffect(() => {
+        const loadMessages = async () => {
+            const storedMessages = await getMessagesFromDB()
+            dispatch(setMessages(storedMessages))
+        }
+        loadMessages()
+    }, [dispatch])
+
     const activeUser: User | undefined = users.find(
         (user: User) => Number(user.id) === Number(activeChat)
     )
 
-    const handleEdit = (msg: Message) => {
+    const handleEdit = async (msg: Message) => {
         const newText = prompt("Edit Message:", msg.text)
         if (newText && newText !== msg.text) {
-            editMessage(msg.id, newText)
+            dispatch(editMessage({ id: msg.id, text: newText }))
+            await updateMessageInDB(msg.id, newText)
         }
     }
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         if (window.confirm("Are You Sure Want to Delete Message")) {
-            deleteMessage(id)
+            dispatch(deleteMessage(id))
+            await deleteMessageFromDB(id)
         }
     }
 
@@ -64,7 +75,7 @@ const Messages = ({ searchText }: MessagesProps) => {
                         "https://cdn.pixabay.com/photo/2017/01/31/21/23/avatar-2027366_960_720.png"
                     }
                     alt={activeUser?.name || "User"}
-                    className="w-11 h-11 rounded-full border-2 border-white"/>
+                    className="w-11 h-11 rounded-full border-2 border-white" />
 
                 <div className="ml-3 flex-1">
                     <p className="text-white font-semibold leading-tight">
@@ -88,7 +99,7 @@ const Messages = ({ searchText }: MessagesProps) => {
             {/* MESSAGE LIST */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {filteredMessages.map((msg) => {
-                    const isSender = msg.sender === tabUserId
+                    const isSender = msg.sender === currentUserId
 
                     return (
                         <div
@@ -99,7 +110,7 @@ const Messages = ({ searchText }: MessagesProps) => {
                                     ? "bg-purple-600 text-white rounded-br-none"
                                     : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none"
                                     }`}>
-                                {msg.text}  
+                                {msg.text}
 
                                 <div className="flex items-center justify-end gap-1 text-[10px] opacity-70 mt-1">
                                     <span>{formatTime(msg.time)}</span>

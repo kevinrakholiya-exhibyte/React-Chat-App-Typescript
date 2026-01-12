@@ -1,7 +1,9 @@
 import { Image, Mail, UserPlus, UserPlus2 } from 'lucide-react'
 import React, { useState, type ChangeEvent, type FormEvent } from 'react'
-import { useChat } from '../contextAPI/ChatContext'
 import { useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '../redux/store/hooks'
+import { addUser } from '../redux/slices/chatSlice'
+import { addUsersToDB } from '../DB/indexedDB'
 
 interface ChatUser {
     id: number
@@ -18,8 +20,8 @@ interface AddUserForm {
     avatar: string
 }
 const AddUser = () => {
-    const { addUser } = useChat()
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
 
     const [form, setForm] = useState<AddUserForm>({
         id: Date.now(),
@@ -67,7 +69,8 @@ const AddUser = () => {
         try {
             setError(null)
             setLoading(true)
-            await addUser(newUser)
+            dispatch(addUser(newUser))
+            await addUsersToDB(newUser)
             navigate("/chats")
         } catch (err) {
             console.error("Failed to add user:", err)
@@ -168,7 +171,7 @@ const AddUser = () => {
                                         "https://cdn.vectorstock.com/i/1000v/66/13/default-avatar-profile-icon-social-media-user-vector-49816613.jpg"
                                     }
                                     alt="avatar preview"
-                                    className="w-full h-full object-cover"/>
+                                    className="w-full h-full object-cover" />
                             </div>
                             <h4 className="mt-3 text-center text-sm font-medium dark:text-white">
                                 {form.name || "No name"}
