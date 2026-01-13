@@ -41,7 +41,7 @@ const Messages = ({ searchText }: MessagesProps) => {
     }, [dispatch])
 
     const activeUser: User | undefined = users.find(
-        (user: User) => Number(user.id) === Number(activeChat)
+        (user: User) => user._id === activeChat
     )
 
     const handleEdit = async (msg: Message) => {
@@ -60,7 +60,7 @@ const Messages = ({ searchText }: MessagesProps) => {
     }
 
     const filteredMessages: Message[] = message.filter((msg: Message) => {
-        if (msg.chatId !== activeChat) return false
+        if (String(msg.chatId) !== String(activeChat)) return false
         if (!searchText.trim()) return true
         return msg.text.toLowerCase().includes(searchText.toLowerCase())
     })

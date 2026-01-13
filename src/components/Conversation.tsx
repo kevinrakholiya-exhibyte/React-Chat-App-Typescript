@@ -15,8 +15,25 @@ const Conversation = () => {
 
     useEffect(() => {
         const loadUsers = async () => {
-            const usersFromDB = await getUsersFromDB()
-            dispatch(setUsers(usersFromDB))
+            try {
+                const res = await fetch("http://localhost:5000/api/users")
+                if (!res.ok) {
+                    throw new Error("Failed to fetch users")
+                }
+                const usersFromAPI = await res.json()
+                dispatch(setUsers(
+                    usersFromAPI.map((u: any) => ({
+                        _id: u._id,
+                        name: u.name,
+                        email: u.email,
+                        avatar: u.avatar,
+                        online: true,        
+                        isPinned: false      
+                    }))
+                ))
+            } catch (error) {
+                console.error("Error fetching users:", error)
+            }
         }
         loadUsers()
     }, [dispatch])
@@ -48,20 +65,20 @@ const Conversation = () => {
             {filteredUsers.map((user) => {
                 // get last message of this user
                 const lastMessage = messages
-                    .filter((m) => m.chatId === user.id)
+                    .filter((m) => String(m.chatId) === user._id)
                     .slice(-1)[0]
 
                 return (
                     <ConversationUser
-                        key={user.id}
+                        key={user._id}
                         name={user.name}
                         email={user.email}
-                        userId={user.id}
+                        userId={user._id}
                         avatar={user.avatar}
                         message={lastMessage?.text ?? "No messages yet"}
                         time={lastMessage?.time?.toString() ?? ""}
-                        active={activeChat === user.id}
-                        onClick={() => dispatch(setActiveChat(user.id))}
+                        active={activeChat === user._id}
+                        onClick={() => dispatch(setActiveChat(user._id))}
                         isPinned={user.isPinned}
                     />
                 )

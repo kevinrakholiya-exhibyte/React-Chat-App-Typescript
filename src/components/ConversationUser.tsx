@@ -1,12 +1,13 @@
-import { Pencil, Pin } from 'lucide-react'
+import { Pencil, Pin, Trash2 } from 'lucide-react'
 import React, { useState } from 'react'
 import EditUserModel from './EditUserModel'
 import { useAppDispatch } from '../redux/store/hooks'
-import { togglePinChat } from '../redux/slices/chatSlice'
+import { deleteUser, togglePinChat } from '../redux/slices/chatSlice'
+import axios from 'axios'
 
 interface ConversationUserProps {
     name: string
-    userId: number
+    userId: string
     avatar?: string
     email: string
     message: string
@@ -34,6 +35,19 @@ const ConversationUser = ({ name, userId, avatar, email, message, time, active, 
         }
 
         return date.toLocaleDateString()
+    }
+    const handleDeleteUser = async (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (!window.confirm("Are you sure you want to delete this user?")) return
+        try {
+            dispatch(deleteUser(userId))
+            await axios.post("http://localhost:5000/api/users/delete",
+                { _id: userId }
+            )
+        } catch (error) {
+            console.error("Delete failed", error)
+            alert("Failed to delete user")
+        }
     }
     return (
         <div
@@ -95,11 +109,18 @@ const ConversationUser = ({ name, userId, avatar, email, message, time, active, 
                     className="p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
                     <Pencil size={16} />
                 </button>
+                <button
+                    title="Delete user"
+                    onClick={handleDeleteUser}
+                    className="p-2 rounded-full text-gray-400 hover:text-indigo-500 cursor-pointer dark:hover:bg-gray-600">
+                    <Trash2 size={17}/>
+                </button>
+
             </div>
 
             {openEdit && (
                 <EditUserModel
-                    user={{ id: userId, name, email, avatar }}
+                    user={{ _id: userId, name, email, avatar }}
                     onClose={() => setOpenEdit(false)}
                 />
             )}

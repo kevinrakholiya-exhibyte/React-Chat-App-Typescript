@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../redux/store/hooks'
 import { addUser } from '../redux/slices/chatSlice'
 import { addUsersToDB } from '../DB/indexedDB'
+import axios from 'axios'
 
 interface ChatUser {
-    id: number
+    _id: string
     name: string
     email: string
     avatar?: string
@@ -14,7 +15,7 @@ interface ChatUser {
 }
 
 interface AddUserForm {
-    id: number
+    _id: string
     name: string
     email: string
     avatar: string
@@ -24,7 +25,7 @@ const AddUser = () => {
     const dispatch = useAppDispatch()
 
     const [form, setForm] = useState<AddUserForm>({
-        id: Date.now(),
+        _id: Date.now().toString(),
         name: "",
         email: "",
         avatar: "",
@@ -57,20 +58,28 @@ const AddUser = () => {
             return
         }
 
-        const newUser: ChatUser = {
-            id: form.id,
-            name: form.name,
-            email: form.email,
-            avatar:
-                form.avatar ||
-                "https://cdn.vectorstock.com/i/1000v/66/13/default-avatar-profile-icon-social-media-user-vector-49816613.jpg",
-            online: true,
-        }
         try {
             setError(null)
             setLoading(true)
-            dispatch(addUser(newUser))
-            await addUsersToDB(newUser)
+
+            const { data: userFromDB } = await axios.post("http://localhost:5000/api/users/register",
+                {
+                    name: form.name,
+                    email: form.email,
+                    avatar: form.avatar
+                },
+                { headers: { "Content-Type": "application/json" } })
+
+            const reduxUser = {
+                _id: userFromDB._id,
+                name: userFromDB.name,
+                email: userFromDB.email,
+                avatar: userFromDB.avatar,
+                online: true
+            }
+
+            dispatch(addUser(reduxUser))
+            await addUsersToDB(reduxUser)
             navigate("/chats")
         } catch (err) {
             console.error("Failed to add user:", err)

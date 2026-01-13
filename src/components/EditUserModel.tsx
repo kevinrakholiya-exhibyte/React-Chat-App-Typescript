@@ -1,10 +1,9 @@
 import React, { useState, type ChangeEvent, type FormEvent } from 'react'
 import type { User } from '../type/chat'
-import { useChat } from '../contextAPI/ChatContext'
 import { X } from 'lucide-react'
 import { useAppDispatch } from '../redux/store/hooks'
 import { updateUser } from '../redux/slices/chatSlice'
-import { updateUserProfile } from '../DB/indexedDB'
+import axios from 'axios'
 
 interface EditUserModelProps {
     user: User
@@ -33,15 +32,24 @@ const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const updatedData = {
+            _id: user._id,
             name: form.name.trim(),
             avatar: form.avatar.trim()
         }
-        dispatch(updateUser({
-            id: user.id,
-            data: updatedData
-        }))
-        await updateUserProfile(user.id, updatedData)
-        onClose()
+        try {
+            dispatch(updateUser({
+                id: user._id,
+                data: updatedData
+            }))
+            await axios.put("http://localhost:5000/api/users/update",
+                updatedData,
+                { headers: { "Content-Type": "application/json" } }
+            )
+            onClose()
+        } catch (error) {
+            console.error("Failed to update user:", error)
+            alert("User update failed. Please try again.")
+        }
     }
 
     return (

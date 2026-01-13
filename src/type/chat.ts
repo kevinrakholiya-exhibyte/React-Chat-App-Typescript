@@ -1,17 +1,17 @@
 export interface Message {
     id: number
-    chatId: number
+    chatId: string
     sender: string
     text: string
     time: Date
     status?: "sent" | "received"
-    edited?:boolean
+    edited?: boolean
 }
 
 export interface User {
-    id: number
+    _id: string
     name: string
     email: string
     avatar?: string
-    isPinned?:boolean
+    isPinned?: boolean
 }
