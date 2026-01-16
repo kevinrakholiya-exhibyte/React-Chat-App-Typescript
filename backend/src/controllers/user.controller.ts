@@ -9,7 +9,7 @@ export const createUser = async (req: Request, res: Response) => {
         if (!user) {
             user = await User.create({ name, email, avatar })
         }
-        res.status(200).json(user)
+        res.status(200).json({ user, message: "User created successfully" })
     } catch (error) {
         res.status(400).json({ message: "User creation failed" })
     }
@@ -28,15 +28,17 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // update user details
 export const updateUser = async (req: Request, res: Response) => {
     try {
-        const { _id, name, avatar } = req.body
-        const updatedUser = await User.findByIdAndUpdate(
-            _id,
-            { name, avatar }
+        const { id } = req.params
+        const { name, avatar } = req.body
+        const user = await User.findByIdAndUpdate(
+            id,
+            { name, avatar },
+            { new: true }
         )
-        if (!updatedUser) {
+        if (!user) {
             return res.status(404).json({ message: "User not found" })
         }
-        res.status(200).json(updatedUser)
+        res.status(200).json({ user, message: "User updated successfully" })
     } catch (error) {
         res.status(500).json({ message: "User update failed" })
     }
@@ -45,18 +47,12 @@ export const updateUser = async (req: Request, res: Response) => {
 // DELETE user
 export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const { _id } = req.body
-        if (!_id) {
-            return res.status(400).json({ message: "User ID is required" })
-        }
-        const user = await User.findByIdAndDelete(_id)
+        const { id } = req.params
+        const user = await User.findByIdAndDelete(id)
         if (!user) {
             return res.status(404).json({ message: "User not found" })
         }
-        res.status(200).json({
-            message: "User deleted successfully",
-            userId: _id
-        })
+        res.status(200).json({ message: "User deleted successfully", id })
     } catch (error) {
         res.status(500).json({ message: "Failed to delete user" })
     }

@@ -41,7 +41,7 @@ const EditUserModel = ({ user, onClose }: EditUserModelProps) => {
                 id: user._id,
                 data: updatedData
             }))
-            await axios.put("http://localhost:5000/api/users/update",
+            await axios.put("http://localhost:5000/api/users/update/${user._id}",
                 updatedData,
                 { headers: { "Content-Type": "application/json" } }
             )
