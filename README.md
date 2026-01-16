@@ -7,6 +7,8 @@
 [![React Router](https://img.shields.io/badge/React_Router_DOM-6-CA4245?logo=reactrouter&logoColor=white)](https://reactrouter.com)
 [![Lucide](https://img.shields.io/badge/Lucide-React_Icons-f97583?logo=lucide&logoColor=white)](https://lucide.dev)
 ![npm](https://img.shields.io/badge/npm-v11.6.2-blue)
+[![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/docs/)
 
 # Description
 
@@ -37,37 +39,79 @@ This project focuses on real-world React concepts like state management, routing
 | IndexedDB        | Offline local database              |
 | Tailwind CSS     | Utility-first styling               |
 | Lucide React     | Icon library                        |
+| Node.js          | JavaScript runtime for backend      |
+| MongoDB          | NoSQL database for user data        |
+| dotenv           | Environment variable management     |
 
 # Project Structure
 
-```text
-src/
+project-root/
 │
-├── components/
-│   ├── AddUser.tsx
-│   ├── Chat.tsx
-│   ├── Conversation.tsx
-|   ├── ConversationUser.tsx
-|   ├── EditUserModel.jsx
-│   ├── Home.tsx
-│   ├── MessageInput.tsx
-|   ├── Messages.tsx
-|   ├── Settings.tsx
-|
-├── contextAPI/
-|   ├── ChatContext.tsx
-|   ├── ThemeContext.tsx
-|
-├── DB/
-│   └── indexedDB.ts
+├── backend/
+│   ├── node_modules/
+│   │
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── db.ts                # MongoDB connection setup
+│   │   │
+│   │   ├── controllers/
+│   │   │   └── user.controller.ts   # User create, fetch, update, delete logic
+│   │   │
+│   │   ├── models/
+│   │   │   └── user.model.ts        # Mongoose user schema
+│   │   │
+│   │   ├── routes/
+│   │   │   └── user.routes.ts       # User API routes
+│   │   │
+│   │   ├── index.ts                 # App entry 
+│   │   └── server.ts                # Server startup & port config
+│   │
+│   ├── .env                         # Environment variables
+│   ├── nodemon.json                 # Nodemon config
+│   ├── package.json                 # Backend dependencies
+│   ├── package-lock.json
+│   └── tsconfig.json                # TypeScript config
 │
-├── Routes/
-│   └── Router.ts
+├── src/                             # Frontend (React + Vite)
+│   │
+│   ├── components/
+│   │   ├── AddUser.tsx
+│   │   ├── Chat.tsx
+│   │   ├── Conversation.tsx
+│   │   ├── ConversationUser.tsx
+│   │   ├── EditUserModel.tsx
+│   │   ├── Home.tsx
+│   │   ├── MessageInput.tsx
+│   │   ├── Messages.tsx
+│   │   └── Settings.tsx
+│   │
+│   ├── contextAPI/
+│   │   ├── ChatContext.tsx
+│   │   └── ThemeContext.tsx
+│   │
+│   ├── DB/
+│   │   └── indexedDB.ts             # IndexedDB logic for messages
+│   │
+│   ├── Routes/
+│   │   └── Router.tsx
+│   │
+│   ├── redux/
+│   │   ├── slices/
+│   │   │   └── chatSlice.ts
+│   │   └── store/
+│   │       └── store.ts
+│   │
+│   ├── type/
+│   │   └── chat.ts                  # TypeScript types
+│   │
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
 │
-├── App.tsx
-├── main.tsx
-└── index.css
-```
+├── vite.config.ts
+├── package.json
+└── README.md
+
 # IndexedDB Usage
 **IndexedDB is used to:**
 

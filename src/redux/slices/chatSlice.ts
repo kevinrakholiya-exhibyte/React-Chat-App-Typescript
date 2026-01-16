@@ -4,7 +4,7 @@ import type { Message, User } from "../../type/chat";
 interface ChatState {
     users: User[]
     messages: Message[]
-    activeChat: number | null
+    activeChat: string | null
     isTyping: boolean
     currentUserId: string | null
 }
@@ -28,9 +28,16 @@ const chatSlice = createSlice({
         setUsers(state, action: PayloadAction<User[]>) {
             state.users = action.payload
         },
-        updateUser(state, action: PayloadAction<{ id: number; data: Partial<User> }>) {
-            const user = state.users.find(u => u.id === action.payload.id)
+        updateUser(state, action: PayloadAction<{ id: string; data: Partial<User> }>) {
+            const user = state.users.find(u => u._id === action.payload.id)
             if (user) Object.assign(user, action.payload.data)
+        },
+        deleteUser: (state, action) => {
+            const userId = action.payload
+            state.users = state.users.filter(user => user._id !== userId)
+            if (state.activeChat === userId) {
+                state.activeChat = null
+            }
         },
         addMessage(state, action: PayloadAction<Message>) {
             state.messages.push(action.payload)
@@ -45,12 +52,12 @@ const chatSlice = createSlice({
         deleteMessage(state, action: PayloadAction<number>) {
             state.messages = state.messages.filter(m => m.id !== action.payload)
         },
-        setActiveChat(state, action: PayloadAction<number>) {
+        setActiveChat(state, action: PayloadAction<string>) {
             state.activeChat = action.payload
             sessionStorage.setItem("activeChatId", String(action.payload))
         },
-        togglePinChat(state, action: PayloadAction<number>) {
-            const user = state.users.find(u => u.id === action.payload)
+        togglePinChat(state, action: PayloadAction<string>) {
+            const user = state.users.find(u => u._id === action.payload)
             if (user) {
                 user.isPinned = !user.isPinned
             }
@@ -61,6 +68,6 @@ const chatSlice = createSlice({
     }
 })
 
-export const { setUsers, addUser, updateUser, addMessage, setActiveChat, togglePinChat, setCurrentUserId, setMessages, editMessage, deleteMessage } = chatSlice.actions
+export const { setUsers, addUser, updateUser, deleteUser, addMessage, setActiveChat, togglePinChat, setCurrentUserId, setMessages, editMessage, deleteMessage } = chatSlice.actions
 
 export default chatSlice.reducer
