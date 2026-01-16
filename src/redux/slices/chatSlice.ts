@@ -32,10 +32,9 @@ const chatSlice = createSlice({
             const user = state.users.find(u => u._id === action.payload.id)
             if (user) Object.assign(user, action.payload.data)
         },
-        deleteUser: (state, action) => {
-            const userId = action.payload
-            state.users = state.users.filter(user => user._id !== userId)
-            if (state.activeChat === userId) {
+        deleteUser: (state, action: PayloadAction<string>) => {
+            state.users = state.users.filter(u => u._id !== action.payload)
+            if (state.activeChat === action.payload) {
                 state.activeChat = null
             }
         },

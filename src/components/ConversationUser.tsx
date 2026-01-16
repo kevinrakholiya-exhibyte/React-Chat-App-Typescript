@@ -41,9 +41,7 @@ const ConversationUser = ({ name, userId, avatar, email, message, time, active, 
         if (!window.confirm("Are you sure you want to delete this user?")) return
         try {
             dispatch(deleteUser(userId))
-            await axios.post("http://localhost:5000/api/users/delete",
-                { _id: userId }
-            )
+            await axios.delete("http://localhost:5000/api/users/delete/${userId}")
         } catch (error) {
             console.error("Delete failed", error)
             alert("Failed to delete user")
@@ -113,7 +111,7 @@ const ConversationUser = ({ name, userId, avatar, email, message, time, active, 
                     title="Delete user"
                     onClick={handleDeleteUser}
                     className="p-2 rounded-full text-gray-400 hover:text-indigo-500 cursor-pointer dark:hover:bg-gray-600">
-                    <Trash2 size={17}/>
+                    <Trash2 size={17} />
                 </button>
 
             </div>
