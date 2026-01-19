@@ -15,3 +15,13 @@ export interface User {
     avatar?: string
     isPinned?: boolean
 }
+
+export interface GetUsersData {
+    users: {
+        _id: string
+        name: string
+        email: string
+        avatar?: string
+        createdAt?: string
+    }[]
+}
