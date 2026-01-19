@@ -9,6 +9,7 @@
 ![npm](https://img.shields.io/badge/npm-v11.6.2-blue)
 [![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/docs/)
+[![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?logo=graphql&logoColor=white)](https://graphql.org/learn/)
 
 # Description
 
@@ -42,9 +43,11 @@ This project focuses on real-world React concepts like state management, routing
 | Node.js          | JavaScript runtime for backend      |
 | MongoDB          | NoSQL database for user data        |
 | dotenv           | Environment variable management     |
+| Graph QL         | The query language for modern APIs  |
+
 
 # Project Structure
-
+``` text
 project-root/
 │
 ├── backend/
@@ -59,6 +62,11 @@ project-root/
 │   │   │
 │   │   ├── models/
 │   │   │   └── user.model.ts        # Mongoose user schema
+│   │   │
+│   │   ├── graphql/                 
+│   │   │   ├── index.ts             # start the graph ql server
+│   │   │   ├── resolvers.ts         # functions that actually run when a query/mutation is called.
+│   │   │   ├── typeDefs.ts          # This defines the shape of your API.
 │   │   │
 │   │   ├── routes/
 │   │   │   └── user.routes.ts       # User API routes
@@ -92,6 +100,10 @@ project-root/
 │   ├── DB/
 │   │   └── indexedDB.ts             # IndexedDB logic for messages
 │   │
+│   │── contextAPI/
+│   │   ├── client.ts                # GraphQL client configuration file
+│   │   ├── queries.ts               # Describes which type of data is needed
+│   │
 │   ├── Routes/
 │   │   └── Router.tsx
 │   │
@@ -111,6 +123,7 @@ project-root/
 ├── vite.config.ts
 ├── package.json
 └── README.md
+```
 
 # IndexedDB Usage
 **IndexedDB is used to:**

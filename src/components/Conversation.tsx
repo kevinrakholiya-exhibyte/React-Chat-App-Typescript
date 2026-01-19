@@ -4,6 +4,9 @@ import { SearchIcon } from 'lucide-react'
 import { useAppDispatch, useAppselector } from '../redux/store/hooks'
 import { setActiveChat, setUsers } from '../redux/slices/chatSlice'
 import { getUsersFromDB } from '../DB/indexedDB'
+import { useQuery } from '@apollo/client/react'
+import { GET_USERS } from '../graphql/queries'
+import type { GetUsersData } from '../type/chat'
 
 const Conversation = () => {
 
@@ -13,30 +16,25 @@ const Conversation = () => {
     const activeChat = useAppselector(state => state.chat.activeChat)
     const [search, setSearch] = useState<string>("")
 
+    const { data, loading, error } = useQuery<GetUsersData>(GET_USERS)
     useEffect(() => {
-        const loadUsers = async () => {
-            try {
-                const res = await fetch("http://localhost:5000/api/users")
-                if (!res.ok) {
-                    throw new Error("Failed to fetch users")
-                }
-                const usersFromAPI = await res.json()
-                dispatch(setUsers(
-                    usersFromAPI.map((u: any) => ({
+        if (data?.users) {
+            dispatch(
+                setUsers(
+                    data.users.map((u: any) => ({
                         _id: u._id,
                         name: u.name,
                         email: u.email,
                         avatar: u.avatar,
-                        online: true,        
-                        isPinned: false      
+                        online: true,
+                        isPinned: false,
                     }))
-                ))
-            } catch (error) {
-                console.error("Error fetching users:", error)
-            }
+                )
+            )
         }
-        loadUsers()
-    }, [dispatch])
+    }, [data, dispatch])
+
+
 
     const filteredUsers = [...users]
         .filter((user) =>
